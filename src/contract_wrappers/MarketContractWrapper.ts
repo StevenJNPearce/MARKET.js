@@ -169,7 +169,6 @@ export class MarketContractWrapper {
       return Promise.reject<BigNumber | number>(new Error('ORDER EXPIRED'));
     }
 
-    // TODO: use RemaingFillableCalculator for this; after #39 is implemented
     if (signedOrder.remainingQty.isEqualTo(new BigNumber(0))) {
       return Promise.reject<BigNumber | number>(new Error('ORDER FILLED OR CANCELLED'));
     }

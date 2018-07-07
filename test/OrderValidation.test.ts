@@ -66,12 +66,12 @@ describe('Order Validation', async () => {
       collateralPoolAddress
     );
     initialCredit = new BigNumber(1e23);
-  });
-
-  it('Ensures sufficient collateral balances', async () => {
-    fees = new BigNumber(0);
     orderQty = new BigNumber(100);
     price = new BigNumber(100000);
+  });
+
+  it('Checks sufficient collateral balances', async () => {
+    fees = new BigNumber(0);
     await collateralToken.transferTx(maker, initialCredit).send({ from: deploymentAddress });
     await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: maker });
     const signedOrder: SignedOrder = await createSignedOrderAsync(
@@ -101,10 +101,8 @@ describe('Order Validation', async () => {
     }
   });
 
-  it('Ensures sufficient MKT balances for fees', async () => {
+  it('Checks sufficient MKT balances for fees', async () => {
     fees = new BigNumber(100);
-    orderQty = new BigNumber(100);
-    price = new BigNumber(100000);
     await collateralToken.transferTx(maker, initialCredit).send({ from: deploymentAddress });
     await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: maker });
     await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
@@ -136,5 +134,184 @@ describe('Order Validation', async () => {
       expect(e).toEqual(new Error(MarketError.InsufficientBalanceForTransfer));
     }
   });
+
+  it('Checks valid signature', async () => {
+    fees = new BigNumber(0);
+    await collateralToken.transferTx(maker, initialCredit).send({ from: deploymentAddress });
+    await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: maker });
+    await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
+      from: maker
+    });
+    const signedOrder: SignedOrder = await createSignedOrderAsync(
+      web3.currentProvider,
+      orderLibAddress,
+      contractAddress,
+      new BigNumber(Math.floor(Date.now() / 1000) + 60 * 60),
+      constants.NULL_ADDRESS,
+      maker,
+      fees,
+      constants.NULL_ADDRESS,
+      fees,
+      orderQty,
+      price,
+      orderQty,
+      Utils.generatePseudoRandomSalt()
+    );
+    signedOrder.ecSignature.s = '0x';
+
+    expect.assertions(1);
+    try {
+      await market.tradeOrderAsync(orderLibAddress, collateralPoolAddress, signedOrder, new BigNumber(2), {
+        from: taker,
+        gas: 400000
+      });
+    } catch (e) {
+      expect(e).toEqual(new Error(MarketError.InvalidSignature));
+    }
+  });
+
+  it('Checks Taker address as defined in the order is null, or is the caller of traderOrder', async () => {
+    fees = new BigNumber(0);
+    await collateralToken.transferTx(maker, initialCredit).send({ from: deploymentAddress });
+    await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: maker });
+    await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
+      from: maker
+    });
+    const signedOrder: SignedOrder = await createSignedOrderAsync(
+      web3.currentProvider,
+      orderLibAddress,
+      contractAddress,
+      new BigNumber(Math.floor(Date.now() / 1000) + 60 * 60),
+      constants.NULL_ADDRESS,
+      maker,
+      fees,
+      '0xArbitraryTakerAddress0000000000000000000',
+      fees,
+      orderQty,
+      price,
+      orderQty,
+      Utils.generatePseudoRandomSalt()
+    );
+
+    expect.assertions(1);
+    try {
+      await market.tradeOrderAsync(orderLibAddress, collateralPoolAddress, signedOrder, new BigNumber(2), {
+        from: taker,
+        gas: 400000
+      });
+    } catch (e) {
+      expect(e).toEqual(new Error('INVALID TAKER'));
+    }
+  });
+
+  it('Checks valid timestamp', async () => {
+    fees = new BigNumber(0);
+    await collateralToken.transferTx(maker, initialCredit).send({ from: deploymentAddress });
+    await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: maker });
+    await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
+      from: maker
+    });
+    const signedOrder: SignedOrder = await createSignedOrderAsync(
+      web3.currentProvider,
+      orderLibAddress,
+      contractAddress,
+      new BigNumber(1),
+      constants.NULL_ADDRESS,
+      maker,
+      fees,
+      constants.NULL_ADDRESS,
+      fees,
+      orderQty,
+      price,
+      orderQty,
+      Utils.generatePseudoRandomSalt()
+    );
+
+    expect.assertions(1);
+    try {
+      await market.tradeOrderAsync(orderLibAddress, collateralPoolAddress, signedOrder, new BigNumber(2), {
+        from: taker,
+        gas: 400000
+      });
+    } catch (e) {
+      expect(e).toEqual(new Error(MarketError.InvalidSignature));
+    }
+  });
+
+  it('Checks the order is not fully filled or fully cancelled', async () => {
+    fees = new BigNumber(0);
+    await collateralToken.transferTx(maker, initialCredit).send({ from: deploymentAddress });
+    await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: maker });
+    await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
+      from: maker
+    });
+    const signedOrder: SignedOrder = await createSignedOrderAsync(
+      web3.currentProvider,
+      orderLibAddress,
+      contractAddress,
+      new BigNumber(Math.floor(Date.now() / 1000) + 60 * 60),
+      constants.NULL_ADDRESS,
+      maker,
+      fees,
+      constants.NULL_ADDRESS,
+      fees,
+      orderQty,
+      price,
+      orderQty,
+      Utils.generatePseudoRandomSalt()
+    );
+    await market.tradeOrderAsync(orderLibAddress, collateralPoolAddress, signedOrder, new BigNumber(orderQty), {
+      from: taker,
+      gas: 400000
+    });
+
+    expect.assertions(1);
+    try {
+      await market.tradeOrderAsync(orderLibAddress, collateralPoolAddress, signedOrder, new BigNumber(2), {
+        from: taker,
+        gas: 400000
+      });
+    } catch (e) {
+      expect(e).toEqual(new Error('ORDER FILLED OR CANCELLED'));
+    }
+  });
+
+  it('Checks the order qty and the fill qty are the same sign', async () => {
+    fees = new BigNumber(0);
+    await collateralToken.transferTx(maker, initialCredit).send({ from: deploymentAddress });
+    await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: maker });
+    await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
+      from: maker
+    });
+    const signedOrder: SignedOrder = await createSignedOrderAsync(
+      web3.currentProvider,
+      orderLibAddress,
+      contractAddress,
+      new BigNumber(Math.floor(Date.now() / 1000) + 60 * 60),
+      constants.NULL_ADDRESS,
+      maker,
+      fees,
+      constants.NULL_ADDRESS,
+      fees,
+      orderQty,
+      price,
+      orderQty,
+      Utils.generatePseudoRandomSalt()
+    );
+
+    expect.assertions(1);
+    try {
+      await market.tradeOrderAsync(orderLibAddress, collateralPoolAddress, signedOrder, new BigNumber(-2), {
+        from: taker,
+        gas: 400000
+      });
+    } catch (e) {
+      expect(e).toEqual(new Error('BUY/SELL MISMATCH'));
+    }
+  });
+
+
+
+
   
 });
