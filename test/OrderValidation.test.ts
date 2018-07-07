@@ -260,15 +260,11 @@ describe('Order Validation', async () => {
       fees,
       constants.NULL_ADDRESS,
       fees,
-      orderQty,
+      new BigNumber(0),
       price,
-      orderQty,
+      new BigNumber(0),
       Utils.generatePseudoRandomSalt()
     );
-    await market.tradeOrderAsync(orderLibAddress, collateralPoolAddress, signedOrder, new BigNumber(orderQty), {
-      from: taker,
-      gas: 400000
-    });
 
     expect.assertions(1);
     try {
