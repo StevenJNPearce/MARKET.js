@@ -229,7 +229,7 @@ describe('Order', () => {
     ).toBe(true);
 
     expect(
-      await market.tradeOrderAsync(signedOrder, new BigNumber(2), {
+      await market.tradeOrderAsync(orderLibAddress, collateralPoolAddress, signedOrder, new BigNumber(2), {
         from: taker,
         gas: 400000
       })
@@ -356,7 +356,7 @@ describe('Order', () => {
     const fillQty = 2;
     const cancelQty = 3;
 
-    await market.tradeOrderAsync(signedOrder, new BigNumber(fillQty), {
+    await market.tradeOrderAsync(orderLibAddress, collateralPoolAddress, signedOrder, new BigNumber(fillQty), {
       from: taker,
       gas: 400000
     });

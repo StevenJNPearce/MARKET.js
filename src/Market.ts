@@ -436,6 +436,8 @@ export class Market {
 
   /**
    * Trades an order and returns success or error.
+   * @param {string} orderLibAddress       Address of the deployed OrderLib.
+   * @param {sting} collateralPoolContractAddress Address of the collateral pool contract.
    * @param {SignedOrder} signedOrder        An object that conforms to the SignedOrder interface. The
    *                                         signedOrder you wish to validate.
    * @param {BigNumber} fillQty              The amount of the order that you wish to fill.
@@ -443,11 +445,20 @@ export class Market {
    * @return {Promise<BigNumber | number>}   Qty that was able to be filled.
    */
   public async tradeOrderAsync(
+    orderLibAddress: string,
+    collateralPoolContractAddress: string,
     signedOrder: SignedOrder,
     fillQty: BigNumber,
     txParams: ITxParams = {}
   ): Promise<BigNumber | number> {
-    return this.marketContractWrapper.tradeOrderAsync(signedOrder, fillQty, txParams);
+    return this.marketContractWrapper.tradeOrderAsync(
+      this.mktTokenContract,
+      orderLibAddress, 
+      collateralPoolContractAddress, 
+      signedOrder,
+      fillQty,
+      txParams
+    );
   }
 
   /**
