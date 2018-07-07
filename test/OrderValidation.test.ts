@@ -68,13 +68,12 @@ describe('Order Validation', async () => {
     initialCredit = new BigNumber(1e23);
   });
 
-  it('Returns MarketError.InsufficientCollateralBalance', async () => {
+  it('Ensures sufficient collateral balances', async () => {
     fees = new BigNumber(0);
     orderQty = new BigNumber(100);
     price = new BigNumber(100000);
     await collateralToken.transferTx(maker, initialCredit).send({ from: deploymentAddress });
     await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: maker });
-
     const signedOrder: SignedOrder = await createSignedOrderAsync(
       web3.currentProvider,
       orderLibAddress,
@@ -90,6 +89,7 @@ describe('Order Validation', async () => {
       orderQty,
       Utils.generatePseudoRandomSalt()
     );
+
     expect.assertions(1);
     try {
       await market.tradeOrderAsync(orderLibAddress, collateralPoolAddress, signedOrder, new BigNumber(2), {
@@ -98,6 +98,42 @@ describe('Order Validation', async () => {
       });
     } catch (e) {
       expect(e).toEqual(new Error(MarketError.InsufficientCollateralBalance));
+    }
+  });
+
+  it('Ensures sufficient MKT balances for fees', async () => {
+    fees = new BigNumber(100);
+    orderQty = new BigNumber(100);
+    price = new BigNumber(100000);
+    await collateralToken.transferTx(maker, initialCredit).send({ from: deploymentAddress });
+    await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: maker });
+    await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
+      from: maker
+    });
+    const signedOrder: SignedOrder = await createSignedOrderAsync(
+      web3.currentProvider,
+      orderLibAddress,
+      contractAddress,
+      new BigNumber(Math.floor(Date.now() / 1000) + 60 * 60),
+      constants.NULL_ADDRESS,
+      maker,
+      fees,
+      constants.NULL_ADDRESS,
+      fees,
+      orderQty,
+      price,
+      orderQty,
+      Utils.generatePseudoRandomSalt()
+    );
+
+    expect.assertions(1);
+    try {
+      await market.tradeOrderAsync(orderLibAddress, collateralPoolAddress, signedOrder, new BigNumber(2), {
+        from: taker,
+        gas: 400000
+      });
+    } catch (e) {
+      expect(e).toEqual(new Error(MarketError.InsufficientBalanceForTransfer));
     }
   });
   
