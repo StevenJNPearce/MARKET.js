@@ -185,7 +185,7 @@ describe('Order Validation', async () => {
       constants.NULL_ADDRESS,
       maker,
       fees,
-      '0xArbitraryTakerAddress0000000000000000000',
+      '0x1111111111111111111111111111111111111111',
       fees,
       orderQty,
       price,
@@ -234,7 +234,7 @@ describe('Order Validation', async () => {
         gas: 400000
       });
     } catch (e) {
-      expect(e).toEqual(new Error(MarketError.InvalidSignature));
+      expect(e).toEqual(new Error('ORDER EXPIRED'));
     }
   });
 
