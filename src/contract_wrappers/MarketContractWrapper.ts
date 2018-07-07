@@ -173,7 +173,7 @@ export class MarketContractWrapper {
       return Promise.reject<BigNumber | number>(new Error('ORDER FILLED OR CANCELLED'));
     }
 
-    if (signedOrder.orderQty.isPositive !== fillQty.isPositive) {
+    if (signedOrder.orderQty.isPositive() !== fillQty.isPositive()) {
       return Promise.reject<BigNumber | number>(new Error('BUY/SELL MISMATCH'));
     }
     

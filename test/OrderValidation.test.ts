@@ -177,6 +177,11 @@ describe('Order Validation', async () => {
     await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
       from: maker
     });
+    await collateralToken.transferTx(taker, initialCredit).send({ from: deploymentAddress });
+    await collateralToken.approveTx(collateralPoolAddress, initialCredit).send({ from: taker });
+    await depositCollateralAsync(web3.currentProvider, collateralPoolAddress, initialCredit, {
+      from: taker
+    });
     const signedOrder: SignedOrder = await createSignedOrderAsync(
       web3.currentProvider,
       orderLibAddress,
@@ -185,7 +190,7 @@ describe('Order Validation', async () => {
       constants.NULL_ADDRESS,
       maker,
       fees,
-      '0x1111111111111111111111111111111111111111',
+      taker,
       fees,
       orderQty,
       price,
