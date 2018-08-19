@@ -16,8 +16,11 @@ import { assert } from '../assert';
 import { ExpirationWatcher } from './ExpirationWatcher';
 import { EventWatcher } from './EventWatcher';
 import { Market, Utils } from '..';
-import { OrderFilledCancelledLazyStore } from '../OrderFilledCancelledLazyStore';
-import { BalanceAndAllowanceLazyStore } from '../BalanceAndAllowanceLazyStore';
+import {
+  BalanceAndAllowanceLazyStore,
+  OrderCollateralPoolAndTokenLazyStore,
+  OrderFilledCancelledLazyStore
+} from '../stores';
 import { IntervalUtils } from '../lib/Utils';
 import { AbiDecoder } from '../lib/AbiDecoder';
 import {
@@ -34,7 +37,6 @@ import {
   UserUpdatedLockedBalanceEventArgs
 } from '../types/ContractEvents';
 import { OrderStateUtils } from '../utilities/OrderStateUtils';
-import { OrderCollateralPoolAndTokenLazyStore } from '../OrderCollateralPoolAndTokenLazyStore';
 
 interface DependentOrderHashes {
   [makerAddress: string]: {

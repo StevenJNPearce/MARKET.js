@@ -1,7 +1,7 @@
 import { BigNumber } from 'bignumber.js';
 import * as _ from 'lodash';
 
-import { ContractWrapper } from './contract_wrappers/ContractWrapper';
+import { ContractWrapper } from '../contract_wrappers/ContractWrapper';
 
 /**
  * Store to keep track of token balances and allowances

@@ -6,7 +6,7 @@ import { ERC20, MarketCollateralPool, MarketContract, SignedOrder } from '@marke
 import { Market, Utils } from '../src';
 import { constants } from '../src/constants';
 
-import { OrderFilledCancelledLazyStore } from '../src/OrderFilledCancelledLazyStore';
+import { OrderFilledCancelledLazyStore } from '../src/stores';
 import { MARKETProtocolConfig } from '../src/types';
 import { createEVMSnapshot, restoreEVMSnapshot } from './utils';
 

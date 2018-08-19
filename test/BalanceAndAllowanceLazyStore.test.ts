@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js';
 
 import { Market, Utils } from '../src';
 
-import { BalanceAndAllowanceLazyStore } from '../src/BalanceAndAllowanceLazyStore';
+import { BalanceAndAllowanceLazyStore } from '../src/stores';
 import { ContractWrapper } from '../src/contract_wrappers/ContractWrapper';
 
 describe('Token Balance and Allowance store', async () => {
