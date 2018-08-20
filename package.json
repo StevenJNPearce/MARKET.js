@@ -1,6 +1,6 @@
 {
   "name": "@marketprotocol/marketjs",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "description": "library for interacting with MARKET Protocol Smart Contracts",
   "keywords": [
     "MARKET Protocol",
@@ -110,10 +110,13 @@
     "setupTestFrameworkScriptFile": "jest-extended"
   },
   "dependencies": {
-    "@marketprotocol/abis": "0.0.1",
+    "@marketprotocol/abis": "0.0.2",
+    "abi-decoder": "^1.1.0",
     "bignumber.js": "^7.2.1",
     "bintrees": "^1.0.2",
+    "bn.js": "^4.11.8",
     "ethereum-input-data-decoder": "0.0.12",
+    "ethereumjs-abi": "^0.6.5",
     "ethereumjs-util": "^5.2.0",
     "jsonschema": "^1.2.4",
     "lodash": "^4.17.10",

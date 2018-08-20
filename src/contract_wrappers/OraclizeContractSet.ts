@@ -37,6 +37,10 @@ export class OraclizeContractSet extends ContractSet {
   // *****************************************************************
   // ****                     Public Methods                      ****
   // *****************************************************************
+  /**
+   * gets a contract meta data object for our oraclize contracts.
+   * @return {Promise<OraclizeContractMetaData>}
+   */
   public async getContractMetaDataAsync(): Promise<OraclizeContractMetaData> {
     return {
       ...(await super.getContractMetaDataAsync()),

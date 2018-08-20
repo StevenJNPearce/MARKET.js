@@ -204,10 +204,10 @@ export class ContractWrapper {
     }
 
     const makerCollateralBalance: BigNumber = new BigNumber(
-      await this.getUserAccountBalanceAsync(signedOrder.contractAddress, maker)
+      await this.getUserUnallocatedCollateralBalanceAsync(signedOrder.contractAddress, maker)
     );
     const takerCollateralBalance: BigNumber = new BigNumber(
-      await this.getUserAccountBalanceAsync(signedOrder.contractAddress, taker)
+      await this.getUserUnallocatedCollateralBalanceAsync(signedOrder.contractAddress, taker)
     );
 
     const neededCollateralMaker: BigNumber = await this.calculateNeededCollateralAsync(
@@ -269,32 +269,6 @@ export class ContractWrapper {
       marketContractAddress
     );
     return contractSetWrapper.marketContract.getQtyFilledOrCancelledFromOrder(orderHash);
-  }
-
-  /**
-   * Gets the collateral pool contract address
-   * @param {string} marketContractAddress    Address of the Market contract.
-   * @returns {Promise<string>}               The contract's name
-   */
-  public async getMarketContractNameAsync(marketContractAddress: string): Promise<string> {
-    const contractSetWrapper: ContractSet = await this._getContractSetByMarketContractAddressAsync(
-      marketContractAddress
-    );
-    return contractSetWrapper.marketContract.CONTRACT_NAME;
-  }
-
-  /**
-   * Gets the market contract price decimal places
-   * @param {string} marketContractAddress    Address of the Market contract
-   * @returns {Promise<BigNumber>}            The contract's price decimal places
-   */
-  public async getMarketContractPriceDecimalPlacesAsync(
-    marketContractAddress: string
-  ): Promise<BigNumber> {
-    const contractSetWrapper: ContractSet = await this._getContractSetByMarketContractAddressAsync(
-      marketContractAddress
-    );
-    return contractSetWrapper.marketContract.PRICE_DECIMAL_PLACES;
   }
 
   /**
@@ -465,7 +439,7 @@ export class ContractWrapper {
    * @param {BigNumber | string} userAddress     address of user
    * @returns {Promise<BigNumber>}               the user's currently unallocated token balance
    */
-  public async getUserAccountBalanceAsync(
+  public async getUserUnallocatedCollateralBalanceAsync(
     marketContractAddress: string,
     userAddress: string
   ): Promise<BigNumber> {
@@ -758,6 +732,19 @@ export class ContractWrapper {
 
     const tokenContract = await this.getERC20TokenContractAsync(tokenAddress);
     return tokenContract.approveTx(spenderAddress, amountInBaseUnits).send(txParams);
+  }
+
+  /**
+   * Retrieve the collateral token address for this market contract.
+   *
+   * @param marketContractAddress Market Contract Address
+   * @return {Promise<string>}
+   */
+  public async getCollateralTokenAddressAsync(marketContractAddress: string): Promise<string> {
+    const contractSet: ContractSet = await this._getContractSetByMarketContractAddressAsync(
+      marketContractAddress
+    );
+    return contractSet.collateralToken.address;
   }
 
   /**

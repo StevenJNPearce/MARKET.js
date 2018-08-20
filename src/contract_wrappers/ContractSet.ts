@@ -41,6 +41,7 @@ export class ContractSet {
   // *****************************************************************
   /**
    * Returns all contract meta data for contract set.
+   * @return {Promise<ContractMetaData>}
    */
   public async getContractMetaDataAsync(): Promise<ContractMetaData> {
     return {

@@ -109,6 +109,9 @@ describe('Order', () => {
 
     expect(await market.isValidSignatureAsync(signedOrder, orderHash.toString())).toBe(true);
 
+    // also test for synchronous hash check :)
+    expect(Utils.getOrderHash(signedOrder)).toEqual(orderHash.toString());
+
     // Create manipulated order to ensure check fails.
 
     const signedOrderFake: SignedOrder = {

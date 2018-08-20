@@ -49,41 +49,6 @@ export class OraclizeContractWrapper extends ContractWrapper {
   // *****************************************************************
   // ****                     Public Methods                      ****
   // *****************************************************************
-  /**
-   * Gets the MarketContract oracle query.
-   * @param {string} marketContractAddress   Address of the contract
-   * @returns {Promise<string>}                      The oracle query
-   */
-  public async getOracleQueryAsync(marketContractAddress: string): Promise<string> {
-    const contractSetWrapper: OraclizeContractSet = await this._getContractSetByMarketContractAddressAsync(
-      marketContractAddress
-    );
-    return contractSetWrapper.marketContractOraclize.ORACLE_QUERY;
-  }
-
-  /**
-   * Gets the MarketContract expiration.
-   * @param {string} marketContractAddress   Address of the contract
-   * @returns {Promise<BigNumber>}                   Expiration timestamp
-   */
-  public async getContractExpirationAsync(marketContractAddress: string): Promise<BigNumber> {
-    const contractSetWrapper: OraclizeContractSet = await this._getContractSetByMarketContractAddressAsync(
-      marketContractAddress
-    );
-    return contractSetWrapper.marketContractOraclize.EXPIRATION;
-  }
-
-  /**
-   * Gets the MarketContract expiration.
-   * @param {string} marketContractAddress   Address of the contract
-   * @returns {Promise<boolean>}                     Is this contract settled?
-   */
-  public async isContractSettledAsync(marketContractAddress: string): Promise<boolean> {
-    const contractSetWrapper: OraclizeContractSet = await this._getContractSetByMarketContractAddressAsync(
-      marketContractAddress
-    );
-    return contractSetWrapper.marketContractOraclize.isSettled;
-  }
 
   /**
    * Gets contract meta data for the supplied market contract address.

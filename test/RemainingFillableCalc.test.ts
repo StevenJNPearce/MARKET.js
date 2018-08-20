@@ -209,16 +209,10 @@ describe('Remaining Fillable Calculator', async () => {
       orderHash
     );
 
-    let neededCollateral = await market.calculateNeededCollateralAsync(
-      contractAddress,
-      orderQty,
-      price
-    );
-
     await market.marketContractWrapper.setAllowanceAsync(
-      collateralTokenAddress,
+      market.mktTokenContract.address,
       deploymentAddress,
-      neededCollateral.plus(makerFee),
+      makerFee,
       { from: makerAddress }
     );
 
@@ -259,16 +253,10 @@ describe('Remaining Fillable Calculator', async () => {
       orderHash
     );
 
-    let neededCollateral = await market.calculateNeededCollateralAsync(
-      contractAddress,
-      orderQty,
-      price
-    );
-
     await market.marketContractWrapper.setAllowanceAsync(
-      collateralTokenAddress,
+      market.mktTokenContract.address,
       deploymentAddress,
-      neededCollateral.plus(takerFee),
+      takerFee,
       { from: takerAddress }
     );
 

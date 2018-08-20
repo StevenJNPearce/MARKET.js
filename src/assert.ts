@@ -2,10 +2,12 @@ import { Schema } from 'jsonschema';
 import * as _ from 'lodash';
 import BigNumber from 'bignumber.js';
 import Web3 from 'web3';
-
 // Types
-import { Provider } from '@0xproject/types';
+import { ECSignature, Provider } from '@0xproject/types';
 import { promisify } from '@marketprotocol/types';
+
+import util from 'util';
+const ethUtil = require('ethereumjs-util');
 
 import { SchemaValidator } from './SchemaValidator';
 
@@ -85,6 +87,28 @@ export const assert = {
     this.assert(
       isSenderAddressAvailable,
       `Specified ${variableName} ${senderAddress} isn't available through the supplied web3`
+    );
+  },
+  isValidSignature(orderHash: string, signature: ECSignature, signerAddress: string) {
+    const dataBuff = ethUtil.toBuffer(orderHash);
+    const msgHashBuff = ethUtil.hashPersonalMessage(dataBuff);
+    let validSignature = false;
+    try {
+      const pubKey = ethUtil.ecrecover(
+        msgHashBuff,
+        signature.v,
+        ethUtil.toBuffer(signature.r),
+        ethUtil.toBuffer(signature.s)
+      );
+      const retrievedAddress = ethUtil.bufferToHex(ethUtil.pubToAddress(pubKey));
+      validSignature = retrievedAddress === signerAddress;
+    } catch (err) {
+      validSignature = false;
+    }
+
+    this.assert(
+      validSignature,
+      `Expected order with hash '${orderHash}' to have a valid signature`
     );
   }
 };

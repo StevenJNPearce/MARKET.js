@@ -163,16 +163,19 @@ export class Market {
   }
 
   /**
-   * Gets the user's currently unallocated token balance
+   * Gets the user's currently unallocated collateral token balance.
+   * The unallocated token balance is the balance that is already deposited into the
+   * collateral pool but has not yet be allocated for a particular trade for the marketContract.
+   *
    * @param {string} marketContractAddress            Address of the MarketContract
    * @param {BigNumber | string} userAddress          Address of user
    * @returns {Promise<BigNumber|null>}               The user's currently unallocated token balance
    */
-  public async getUserAccountBalanceAsync(
+  public async getUserUnallocatedCollateralBalanceAsync(
     marketContractAddress: string,
     userAddress: string
   ): Promise<BigNumber> {
-    return this.marketContractWrapper.getUserAccountBalanceAsync(
+    return this.marketContractWrapper.getUserUnallocatedCollateralBalanceAsync(
       marketContractAddress,
       userAddress
     );
@@ -302,39 +305,6 @@ export class Market {
   // CONTRACT METHODS
 
   /**
-   * Gets the collateral pool contract address
-   * @param {string} marketContractAddress    Address of the Market contract
-   * @returns {Promise<string>}               The contract's collateral pool address
-   */
-  public async getCollateralPoolContractAddressAsync(
-    marketContractAddress: string
-  ): Promise<string> {
-    return this.marketContractWrapper.getCollateralPoolContractAddressAsync(marketContractAddress);
-  }
-
-  /**
-   * Gets the market contract name
-   * @param {string} marketContractAddress    Address of the Market contract
-   * @returns {Promise<string>}               The contract's name
-   */
-  public async getMarketContractNameAsync(marketContractAddress: string): Promise<string> {
-    return this.marketContractWrapper.getMarketContractNameAsync(marketContractAddress);
-  }
-
-  /**
-   * Gets the market contract price decimal places
-   * @param {string} marketContractAddress    Address of the Market contract
-   * @returns {Promise<BigNumber>}            The contract's name
-   */
-  public async getMarketContractPriceDecimalPlacesAsync(
-    marketContractAddress: string
-  ): Promise<BigNumber> {
-    return this.marketContractWrapper.getMarketContractPriceDecimalPlacesAsync(
-      marketContractAddress
-    );
-  }
-
-  /**
    * Gets contract meta data for the supplied market contract address.
    * @param marketContractAddress
    */
@@ -353,33 +323,6 @@ export class Market {
   }
 
   /**
-   * Get the oracle query for the MarketContract
-   * @param marketContractAddress   MarketContract address
-   * @returns {Promise<string>}     The oracle query
-   */
-  public async getOracleQueryAsync(marketContractAddress: string): Promise<string> {
-    return this.marketContractWrapper.getOracleQueryAsync(marketContractAddress);
-  }
-
-  /**
-   * Gets the contract expiration timestamp
-   * @param {string} marketContractAddress   MarketContract address
-   * @returns {Promise<BigNumber>}           Expiration timestamp
-   */
-  public async getContractExpirationAsync(marketContractAddress: string): Promise<BigNumber> {
-    return this.marketContractWrapper.getContractExpirationAsync(marketContractAddress);
-  }
-
-  /**
-   * Gets the settlement status of the contract
-   * @param {string} marketContractAddress    MarketContract address
-   * @returns {Promise<boolean>}              True/false
-   */
-  public async isContractSettledAsync(marketContractAddress: string): Promise<boolean> {
-    return this.marketContractWrapper.isContractSettledAsync(marketContractAddress);
-  }
-
-  /**
    * Get the history of contract fills for maker,taker or both sides of the trade.
    * @param {string} marketContractAddress       address of the MarketContract
    * @param {string} fromBlock                   from block #
@@ -393,7 +336,7 @@ export class Market {
     fromBlock: number | string = '0x0',
     toBlock: number | string = 'latest',
     userAddress: string | null = null,
-    side: 'maker' | 'taker' | 'any' = 'any',
+    side: 'maker' | 'taker' | 'any' = 'any'
   ): Promise<OrderFilledEvent[]> {
     return this.marketContractWrapper.getContractFillsAsync(
       marketContractAddress,
@@ -403,6 +346,18 @@ export class Market {
       side
     );
   }
+
+  /**
+   * Retrieves an owner's ERC20 token balance.
+   *
+   * @param {string} tokenAddress The hex encoded contract Ethereum address where the ERC20 token is deployed.
+   * @param {string} ownerAddress The hex encoded user Ethereum address whose balance you would like to check.
+   * @returns {Promise<BigNumber>} The owner's ERC20 token balance in base units.
+   */
+  public async getBalanceAsync(tokenAddress: string, ownerAddress: string): Promise<BigNumber> {
+    return this.marketContractWrapper.getBalanceAsync(tokenAddress, ownerAddress);
+  }
+
   // DEPLOYMENT METHODS
 
   /**

@@ -102,15 +102,15 @@ describe('Collateral', () => {
     expect(newBalance.minus(oldBalance)).toEqual(depositAmount);
   });
 
-  it('getUserAccountBalanceAsync returns correct user balance', async () => {
-    const oldUserBalance: BigNumber = await market.getUserAccountBalanceAsync(
+  it('getUserUnallocatedCollateralBalanceAsync returns correct user balance', async () => {
+    const oldUserBalance: BigNumber = await market.getUserUnallocatedCollateralBalanceAsync(
       marketContractAddress,
       maker
     );
 
     const depositAmount: BigNumber = new BigNumber(100);
     await market.depositCollateralAsync(marketContractAddress, depositAmount, { from: maker });
-    const newUserBalance: BigNumber = await market.getUserAccountBalanceAsync(
+    const newUserBalance: BigNumber = await market.getUserUnallocatedCollateralBalanceAsync(
       marketContractAddress,
       maker
     );

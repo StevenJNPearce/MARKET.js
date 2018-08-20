@@ -1,5 +1,7 @@
 import { join } from 'path';
 import { readFileSync } from 'fs';
+import * as _ from 'lodash';
+import DoneCallback = jest.DoneCallback;
 
 import Web3 from 'web3';
 import { JSONRPCResponsePayload } from '@0xproject/types';
@@ -83,3 +85,49 @@ export async function restoreEVMSnapshot(web3: Web3, snapshotId: string): Promis
     );
   });
 }
+
+/**
+ * Callback wrapper to catch error in callback response.
+ *
+ * @param {DoneCallback} done
+ * @param {bool} expectToBeCalledOnce flag if callback should be called once
+ */
+export const reportNodeCallbackErrors = (done: DoneCallback, expectToBeCalledOnce = true) => {
+  return <T>(f?: (value: T) => void) => {
+    const wrapped = (error: Error | null, value: T | undefined) => {
+      if (!_.isNull(error)) {
+        done(error);
+      } else {
+        if (_.isUndefined(f)) {
+          done();
+          return;
+        }
+        try {
+          f(value as T);
+          if (expectToBeCalledOnce) {
+            done();
+          }
+        } catch (err) {
+          done(err);
+        }
+      }
+    };
+    return wrapped;
+  };
+};
+
+export const assertNodeCallbackError = (done: DoneCallback, errMsg: string) => {
+  const wrapped = <T>(error: Error | null, value: T | undefined) => {
+    if (_.isNull(error)) {
+      done(new Error('Expected callback to receive an error'));
+    } else {
+      try {
+        expect(error.message).to.be.equal(errMsg);
+        done();
+      } catch (err) {
+        done(err);
+      }
+    }
+  };
+  return wrapped;
+};
