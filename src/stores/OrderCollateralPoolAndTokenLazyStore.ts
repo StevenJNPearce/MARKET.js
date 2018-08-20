@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 
-import { ContractWrapper } from './contract_wrappers/ContractWrapper';
+import { ContractWrapper } from '../contract_wrappers/ContractWrapper';
 
 /**
  * Cache to make fetching collateral pool and collateral token addresses

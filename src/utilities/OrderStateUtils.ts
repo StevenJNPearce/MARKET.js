@@ -1,7 +1,10 @@
 import BigNumber from 'bignumber.js';
 
-import { OrderFilledCancelledLazyStore } from '../OrderFilledCancelledLazyStore';
-import { BalanceAndAllowanceLazyStore } from '../BalanceAndAllowanceLazyStore';
+import {
+  BalanceAndAllowanceLazyStore,
+  OrderCollateralPoolAndTokenLazyStore,
+  OrderFilledCancelledLazyStore
+} from '../stores';
 import { SignedOrder } from '@marketprotocol/types';
 import {
   MarketError,
@@ -13,7 +16,6 @@ import {
 import { Utils } from '../lib/Utils';
 import { RemainingFillableCalculator } from '../order_watcher/RemainingFillableCalc';
 import { Market } from '..';
-import { OrderCollateralPoolAndTokenLazyStore } from '../OrderCollateralPoolAndTokenLazyStore';
 
 /**
  * Utility class for computing and returning the state of an order.

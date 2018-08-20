@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js';
 
 import { Market } from '../src';
 
-import { OrderCollateralPoolAndTokenLazyStore } from '../src/OrderCollateralPoolAndTokenLazyStore';
+import { OrderCollateralPoolAndTokenLazyStore } from '../src/stores';
 import { ContractWrapper } from '../src/contract_wrappers/ContractWrapper';
 
 describe('Order Collateral Pool And Token store', async () => {
