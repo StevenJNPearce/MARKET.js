@@ -18,30 +18,32 @@ describe('Deployment Tests', () => {
   };
   const market: Market = new Market(web3.currentProvider, config);
 
-  it('Deploys a MARKET Contract Correctly', async () => {
-    jest.setTimeout(30000);
+  let collateralTokenAddress;
+  let quickExpirationTimeStamp;
+  let contractSpecs;
+  let txParams;
+  let contractName;
+  let oracleDataSource;
+  let oracleQuery;
+  let txHash;
+  let deployedAddress;
 
-    const collateralTokenAddress = getContractAddress(
-      'CollateralToken',
-      constants.NETWORK_ID_TRUFFLE
-    );
-    const quickExpirationTimeStamp: BigNumber = new BigNumber(
-      Math.floor(Date.now() / 1000) + 60 * 60
-    ); // expires in an hour
-    const contractSpecs: BigNumber[] = [
+  beforeAll(async () => {
+    collateralTokenAddress = getContractAddress('CollateralToken', constants.NETWORK_ID_TRUFFLE);
+    quickExpirationTimeStamp = new BigNumber(Math.floor(Date.now() / 1000) + 60 * 60); // expires in an hour
+    contractSpecs = [
       new BigNumber(50000),
       new BigNumber(150000),
       new BigNumber(2),
       new BigNumber(1e18),
       quickExpirationTimeStamp
     ];
-    const txParams: ITxParams = { from: web3.eth.accounts[1], gas: GAS_LIMIT };
-    const contractName: string = 'TestContract';
-    const oracleDataSource: string = 'URL';
-    const oracleQuery: string =
-      'json(https://api.kraken.com/0/public/Ticker?pair=ETHUSD).result.XETHZUSD.c.0';
+    txParams = { from: web3.eth.accounts[1], gas: GAS_LIMIT };
+    contractName = 'TestContract';
+    oracleDataSource = 'URL';
+    oracleQuery = 'json(https://api.kraken.com/0/public/Ticker?pair=ETHUSD).result.XETHZUSD.c.0';
 
-    const txHash = await market.deployMarketContractOraclizeAsync(
+    txHash = await market.deployMarketContractOraclizeAsync(
       contractName,
       collateralTokenAddress,
       contractSpecs,
@@ -50,11 +52,15 @@ describe('Deployment Tests', () => {
       txParams
     );
 
-    const deployedAddress = await market.getDeployedMarketContractAddressFromTxHash(
+    deployedAddress = await market.getDeployedMarketContractAddressFromTxHash(
       web3.eth.accounts[1],
       txHash,
       0
     );
+  });
+
+  it('Deploys a MARKET Contract Correctly', async () => {
+    jest.setTimeout(30000);
 
     deployMarketContract = await MarketContractOraclize.createAndValidate(web3, deployedAddress);
     expect(await deployMarketContract.CONTRACT_NAME).toEqual(contractName);
@@ -69,7 +75,6 @@ describe('Deployment Tests', () => {
   });
 
   it('Deploys and links a MARKET Collateral Pool Correctly', async () => {
-    const txParams: ITxParams = { from: web3.eth.accounts[1], gas: GAS_LIMIT };
     await market.deployMarketCollateralPoolAsync(deployMarketContract.address, txParams);
 
     expect(await deployMarketContract.isCollateralPoolContractLinked).toEqual(true);
@@ -88,5 +93,11 @@ describe('Deployment Tests', () => {
       await deployMarketContract.ORACLE_DATA_SOURCE
     );
     expect(contractMetaData.oracleQuery).toEqual(await deployMarketContract.ORACLE_QUERY);
+  });
+
+  it('Returns contract creation logs', async () => {
+    const events = await market.getContractCreatedEventsAsync('0x0', 'latest');
+    expect(events.length).toBeGreaterThan(0);
+    expect(events.some(e => e.args.contractAddress === deployedAddress));
   });
 });

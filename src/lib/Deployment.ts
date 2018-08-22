@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js';
 import Web3 from 'web3';
 
 // Types
-import { Provider } from '@0xproject/types';
+import { DecodedLogEntry, Provider } from '@0xproject/types';
 import {
   ITxParams,
   MarketCollateralPoolFactory,
@@ -16,7 +16,7 @@ import {
  * @param {MarketCollateralPoolFactory} marketCollateralPoolFactory
  * @param {string} marketContractAddress
  * @param {ITxParams} txParams
- * @returns {Promise<string>}                   transaction has of pending deployment.
+ * @returns {Promise<string>}                   transaction hash of pending deployment.
  */
 export async function deployMarketCollateralPoolAsync(
   provider: Provider,
@@ -59,6 +59,33 @@ export async function deployMarketContractOraclizeAsync(
       oracleQuery
     )
     .send(txParams);
+}
+
+/**
+ * Returns logs for MarketContractCreatedEvent
+ * @param                   marketContractFactory The market contract factory
+ * @param {string | number} fromBlock             optional filter
+ * @param {string | number} toBlock               optional filter
+ * @param {string}          txHash                optional filter
+ */
+export async function getContractCreatedEventsAsync(
+  marketContractFactory: MarketContractFactoryOraclize,
+  fromBlock: number | string = '0x0',
+  toBlock: number | string = 'latest'
+): Promise<
+  Array<
+    DecodedLogEntry<{
+      creator: string | BigNumber;
+      contractAddress: string | BigNumber;
+    }>
+  >
+> {
+  let events = await marketContractFactory.MarketContractCreatedEvent({}).get({
+    fromBlock: fromBlock,
+    toBlock: toBlock
+  });
+
+  return events;
 }
 
 /**

@@ -4,6 +4,7 @@ import Web3 from 'web3';
 // Types
 import { Provider } from '@0xproject/types';
 import {
+  DecodedLogEntry,
   ECSignature,
   ITxParams,
   MarketCollateralPoolFactory,
@@ -20,6 +21,7 @@ import { assert } from './assert';
 import {
   deployMarketCollateralPoolAsync,
   deployMarketContractOraclizeAsync,
+  getContractCreatedEventsAsync,
   getDeployedMarketContractAddressFromTxHash
 } from './lib/Deployment';
 
@@ -427,6 +429,27 @@ export class Market {
       txHash,
       fromBlock
     );
+  }
+
+  /**
+   * Returns logs for MarketContractCreatedEvent
+   * @param                   marketContractFactory The market contract factory
+   * @param {string | number} fromBlock             optional filter
+   * @param {string | number} toBlock               optional filter
+   * @param {string}          txHash                optional filter
+   */
+  public async getContractCreatedEventsAsync(
+    fromBlock: number | string,
+    toBlock: number | string
+  ): Promise<
+    Array<
+      DecodedLogEntry<{
+        creator: string | BigNumber;
+        contractAddress: string | BigNumber;
+      }>
+    >
+  > {
+    return getContractCreatedEventsAsync(this.marketContractFactory, fromBlock, toBlock);
   }
 
   // ORDER METHODS
